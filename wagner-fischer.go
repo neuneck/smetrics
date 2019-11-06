@@ -65,7 +65,12 @@ var DefaultSubstitutionWeights = map[BytePair]int{
 }
 
 // WagnerFischer computes the Levenshtein Distance using the Wagner-Fisher algorithm
-func WagnerFischer(a, b string, icost, dcost, scost int) int {
+func WagnerFischer(aStr, bStr string, icost, dcost, scost int) int {
+
+	// Convert to runes to support multibyte characters
+	a := []rune(aStr)
+	b := []rune(bStr)
+
 	// Allocate both rows.
 	row1 := make([]int, len(b)+1)
 	row2 := make([]int, len(b)+1)
