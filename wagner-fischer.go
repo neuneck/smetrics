@@ -1,5 +1,7 @@
 package smetrics
 
+const maxStackStringLength = 256
+
 // BytePair structs hold a pair of bytes
 type BytePair struct {
 	firstByte  byte
@@ -71,10 +73,20 @@ func WagnerFischer(aStr, bStr string, icost, dcost, scost int) int {
 	a := []rune(aStr)
 	b := []rune(bStr)
 
-	// Allocate both rows.
-	row1 := make([]int, len(b)+1)
-	row2 := make([]int, len(b)+1)
-	var tmp []int
+	// Allocate memory stores on the stack if possible, otherwise use heap memory
+	var row1, row2, tmp []int
+	if len(a)+1 < maxStackStringLength && len(b)+1 < maxStackStringLength {
+		var (
+			store1 [maxStackStringLength]int
+			store2 [maxStackStringLength]int
+		)
+
+		row1 = store1[:len(b)+1]
+		row2 = store2[:len(b)+1]
+	} else {
+		row1 = make([]int, len(b)+1)
+		row2 = make([]int, len(b)+1)
+	}
 
 	// Initialize the first row.
 	for i := 1; i <= len(b); i++ {
@@ -116,10 +128,21 @@ func WagnerFischer(aStr, bStr string, icost, dcost, scost int) int {
 
 // WagnerFischerWithWeightedSubs computes the Levenshtein Distance with substitution weights given as a map of bytes to maps of bytes to int
 func WagnerFischerWithWeightedSubs(a, b string, icost, dcost, scost int, substitutionWeights map[BytePair]int) int {
-	// Allocate both rows.
-	row1 := make([]int, len(b)+1)
-	row2 := make([]int, len(b)+1)
-	var tmp []int
+
+	// Allocate memory stores on the stack if possible, otherwise use heap memory
+	var row1, row2, tmp []int
+	if len(a)+1 < maxStackStringLength && len(b)+1 < maxStackStringLength {
+		var (
+			store1 [maxStackStringLength]int
+			store2 [maxStackStringLength]int
+		)
+
+		row1 = store1[:len(b)+1]
+		row2 = store2[:len(b)+1]
+	} else {
+		row1 = make([]int, len(b)+1)
+		row2 = make([]int, len(b)+1)
+	}
 
 	// Initialize the first row.
 	for i := 1; i <= len(b); i++ {
